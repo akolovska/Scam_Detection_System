@@ -3,83 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <title>Scam Detection System</title>
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
-body {
-    font-family: Arial, sans-serif;
+        body {
             margin: 0;
-            background: #f5f6fa;
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
         }
 
         .navbar {
-    background: #1f2937;
-    color: white;
-    padding: 15px 20px;
+            background: #111827;
+            color: white;
+            padding: 14px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .navbar a {
-    color: white;
-    margin-left: 15px;
+            color: white;
             text-decoration: none;
+            margin-left: 12px;
+            font-weight: 500;
+        }
+
+        .navbar a:hover {
+            opacity: 0.8;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .container {
-    max-width: 1000px;
+            max-width: 1100px;
             margin: 30px auto;
             background: white;
-            padding: 20px;
-            border-radius: 8px;
+            padding: 24px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
         .btn {
-    padding: 8px 12px;
+            padding: 8px 14px;
             background: #2563eb;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
+            cursor: pointer;
             text-decoration: none;
-            display: inline-block;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background: #1d4ed8;
         }
 
         .btn-danger {
-    background: #dc2626;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
+            background: #dc2626;
         }
 
-        table th, table td {
-    border: 1px solid #ddd;
-            padding: 10px;
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
             text-align: left;
         }
 
-        table th {
-    background: #f3f4f6;
-}
+        th {
+            background: #f9fafb;
+            font-size: 14px;
+        }
 
-input, textarea, select {
-    width: 100%;
-    padding: 8px;
-            margin-top: 5px;
-            margin-bottom: 15px;
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            margin-bottom: 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
         }
 
         .alert {
-    padding: 10px;
-            background: #d1fae5;
-            color: #065f46;
-            margin-bottom: 15px;
-            border-radius: 5px;
+            background: #dcfce7;
+            color: #166534;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
         }
 
+        .welcome {
+            opacity: 0.9;
+            font-size: 14px;
+        }
     </style>
 </head>
 
@@ -87,31 +115,36 @@ input, textarea, select {
 
 <div class="navbar">
 
-    <a href="{{ route('reports.index') }}">Reports</a>
+    <div>
+        <a href="{{ route('reports.index') }}">Reports</a>
+    </div>
 
-    <div style="margin-left:auto; display:flex; align-items:center; gap:15px;">
+    <div class="nav-right">
 
         @auth
 
-
-
-            <span>
+            <span class="welcome">
                 Welcome, {{ auth()->user()->name }}
             </span>
+
             @if(auth()->user()->role === \App\Enums\UserRole::ADMIN)
-                <a href="{{ route('reports.create') }}">Create Report</a>
+                <a href="{{ route('reports.create') }}" class="btn">
+                    Create
+                </a>
             @endif
 
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="btn">
+                <button type="submit" class="btn btn-danger">
                     Logout
                 </button>
             </form>
 
         @else
 
-            <a href="{{ route('login') }}">Login</a>
+            <a href="{{ route('login') }}" class="btn">
+                Login
+            </a>
 
         @endauth
 
@@ -121,15 +154,15 @@ input, textarea, select {
 
 <div class="container">
 
-@if(session('success'))
-    <div class="alert">
-        {{ session('success') }}
-    </div>
+    @if(session('success'))
+        <div class="alert">
+            {{ session('success') }}
+        </div>
     @endif
 
     @yield('content')
 
-    </div>
+</div>
 
-    </body>
-    </html>
+</body>
+</html>

@@ -2,15 +2,20 @@
 
 @section('content')
 
-    <h1>Scam Reports</h1>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h1 style="margin:0;">Scam Reports</h1>
 
-    @auth
-        @if(auth()->user()->role === \App\Enums\UserRole::ADMIN)
-            <a href="{{ route('reports.create') }}">Create Report</a>
-        @endif
-    @endauth
+        @auth
+            @if(auth()->user()->role === \App\Enums\UserRole::ADMIN)
+                <a href="{{ route('reports.create') }}" class="btn">
+                    + Create Report
+                </a>
+            @endif
+        @endauth
+    </div>
 
-    <form method="GET" action="{{ route('reports.index') }}">
+    <form method="GET" action="{{ route('reports.index') }}"
+          style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
 
         <select name="source_type">
             <option value="">All sources</option>
@@ -22,78 +27,88 @@
 
         <select name="risk">
             <option value="">All risk levels</option>
-
-            <option value="low" @selected(request('risk')=='low')>
-                Low (0–39)
-            </option>
-
-            <option value="medium" @selected(request('risk')=='medium')>
-                Medium (40–69)
-            </option>
-
-            <option value="high" @selected(request('risk')=='high')>
-                High (70–100)
-            </option>
+            <option value="low" @selected(request('risk')=='low')>Low (0–39)</option>
+            <option value="medium" @selected(request('risk')=='medium')>Medium (40–69)</option>
+            <option value="high" @selected(request('risk')=='high')>High (70–100)</option>
         </select>
 
-        <button type="submit">Filter</button>
+        <button class="btn" type="submit">Filter</button>
     </form>
 
-    <br><br>
+    <div style="overflow-x:auto;">
+        <table>
 
-    <table>
-
-        <thead>
-        <tr>
-            <th>Title</th>
-            <th>Risk Score</th>
-            <th>Source</th>
-            <th>User</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-
-        <tbody>
-
-        @foreach($reports as $report)
-
+            <thead>
             <tr>
-
-                <td>{{ $report->title }}</td>
-
-                <td>{{ $report->risk_score }}</td>
-
-                <td>{{ $report->source_type }}</td>
-
-                <td>{{ $report->user->name }}</td>
-
-                <td>
-                    <a href="{{ route('reports.show', $report->id) }}">
-                        View
-                    </a>
-                </td>
-                <td>
-                    @auth
-                        @if(auth()->user()->role === \App\Enums\UserRole::ADMIN)
-                            <form method="POST" action="{{ route('reports.destroy', $report->id) }}">
-                                @csrf
-                                @method('DELETE')
-
-                                <button type="submit" class="btn-danger">
-                                    Delete
-                                </button>
-                            </form>
-                        @endif
-                    @endauth
-                </td>
-
-
+                <th>Title</th>
+                <th>Risk</th>
+                <th>Source</th>
+                <th>User</th>
+                <th style="width:180px;">Actions</th>
             </tr>
+            </thead>
 
-        @endforeach
+            <tbody>
 
-        </tbody>
+            @forelse($reports as $report)
+                <tr>
 
-    </table>
+                    <td>
+                        <strong>{{ $report->title }}</strong>
+                    </td>
+
+                    <td>
+                        {{-- simple risk badge --}}
+                        @if($report->risk_score < 40)
+                            <span style="color:green;">{{ $report->risk_score }} (Low)</span>
+                        @elseif($report->risk_score < 70)
+                            <span style="color:orange;">{{ $report->risk_score }} (Medium)</span>
+                        @else
+                            <span style="color:red;">{{ $report->risk_score }} (High)</span>
+                        @endif
+                    </td>
+
+                    <td>{{ ucfirst($report->source_type->value) }}</td>
+
+                    <td>{{ $report->user->name ?? 'Unknown' }}</td>
+
+                    <td style="display:flex; gap:10px; align-items:center;">
+
+                        <a class="btn" href="{{ route('reports.show', $report->id) }}">
+                            View
+                        </a>
+
+                        @auth
+                            @if(auth()->user()->role === \App\Enums\UserRole::ADMIN)
+                                <form method="POST"
+                                      action="{{ route('reports.destroy', $report->id) }}"
+                                      onsubmit="return confirm('Delete this report?')">
+
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <button type="submit" class="btn btn-danger">
+                                        Delete
+                                    </button>
+
+                                </form>
+                            @endif
+                        @endauth
+
+                    </td>
+
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="5" style="text-align:center; padding:20px;">
+                        No reports found
+                    </td>
+                </tr>
+            @endforelse
+
+            </tbody>
+
+        </table>
+    </div>
 
 @endsection
