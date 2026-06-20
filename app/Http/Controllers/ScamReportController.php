@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\ScamReportStatus;
 use App\Http\Requests\StoreScamReportRequest;
 use App\Models\ScamCategory;
+use App\Models\ScamReport;
 use App\Repositories\ScamReportRepository;
 use App\Services\ScamDetectionService;
 use Illuminate\Http\Request;
@@ -100,5 +101,27 @@ class ScamReportController extends Controller
         return redirect()
             ->route('reports.index')
             ->with('success', 'Report deleted successfully.');
+    }
+    public function dashboard()
+    {
+        $total = ScamReport::count();
+
+        $low = ScamReport::whereBetween('risk_score', [0, 39])->count();
+
+        $medium = ScamReport::whereBetween('risk_score', [40, 69])->count();
+
+        $high = ScamReport::whereBetween('risk_score', [70, 100])->count();
+
+        $topCategory = ScamCategory::withCount('reports')
+            ->orderByDesc('reports_count')
+            ->first();
+
+        return view('statistics', compact(
+            'total',
+            'low',
+            'medium',
+            'high',
+            'topCategory'
+        ));
     }
 }

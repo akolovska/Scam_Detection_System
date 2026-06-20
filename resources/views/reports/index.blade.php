@@ -6,13 +6,12 @@
         <h1 style="margin:0;">Scam Reports</h1>
 
         @auth
-            @if(auth()->user()->role === \App\Enums\UserRole::ADMIN)
-                <a href="{{ route('reports.create') }}" class="btn">
-                    + Create Report
-                </a>
-            @endif
+            <a href="{{ route('reports.create') }}" class="btn">
+                Create Report
+            </a>
         @endauth
     </div>
+
 
     <form method="GET" action="{{ route('reports.index') }}"
           style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;">

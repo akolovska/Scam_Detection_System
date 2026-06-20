@@ -132,6 +132,8 @@
                     Create
                 </a>
             @endif
+            <a href="{{ route('profile.edit') }}">Profile</a>
+            <a href="{{ route('statistics') }}">Statistics</a>
 
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
@@ -141,7 +143,7 @@
             </form>
 
         @else
-
+            <a href="{{ route('register') }}">Register</a>
             <a href="{{ route('login') }}" class="btn">
                 Login
             </a>

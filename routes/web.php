@@ -27,6 +27,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::delete('/reports/{id}', [ScamReportController::class, 'destroy'])
         ->name('reports.destroy');
+    Route::get('/statistics', [ScamReportController::class, 'dashboard'])
+        ->name('statistics');
 });
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
