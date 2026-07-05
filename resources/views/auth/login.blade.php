@@ -1,49 +1,58 @@
-<x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+@extends('layout')
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
+@section('content')
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+    <div style="max-width: 500px; margin: 40px auto;">
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800" name="remember">
-                <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ __('Remember me') }}</span>
-            </label>
-        </div>
+        <h1 style="margin-bottom: 10px;" class="text-lg font-semibold">Login</h1>
 
 
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
-            <a class="ms-2 underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('register') }}">Register</a>
+        @if(session('status'))
+            <div class="alert">{{ session('status') }}</div>
+        @endif
 
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+        <form method="POST" action="{{ route('login') }}">
+
+            @csrf
+
+            <label>Email</label>
+            <input type="email" name="email" value="{{ old('email') }}" required>
+
+            @error('email')
+            <div style="color:red; font-size:13px;">{{ $message }}</div>
+            @enderror
+
+            <label>Password</label>
+            <input type="password" name="password" required>
+
+            @error('password')
+            <div style="color:red; font-size:13px;">{{ $message }}</div>
+            @enderror
+
+            <div style="margin-top: 10px;">
+                <label style="display:flex; align-items:center; gap:6px; font-size:13px;">
+                    <input type="checkbox" name="remember" style="width:14px; height:14px; margin:0;">
+                    <span>Remember me</span>
+                </label>
+            </div>
+
+            <div style="margin-top: 20px; display:flex; gap:10px; justify-content:space-between; align-items:center;">
+
+                <div>
+                    <a href="{{ route('register') }}">Register</a>
+                    @if (Route::has('password.request'))
+                        <a href="{{ route('password.request') }}"> Forgot password</a>
+                    @endif
+                </div>
+
+                <button type="submit" class="btn">
+                    Login
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+@endsection

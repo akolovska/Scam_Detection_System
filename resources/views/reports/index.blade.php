@@ -5,11 +5,11 @@
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
         <h1 style="margin:0;">Scam Reports</h1>
 
-        @auth
+        @if(auth()->user() != null && auth()->user()->role === \App\Enums\UserRole::ADMIN)
             <a href="{{ route('reports.create') }}" class="btn">
                 Create Report
             </a>
-        @endauth
+        @endif
     </div>
 
 
@@ -33,6 +33,9 @@
 
         <button class="btn" type="submit">Filter</button>
     </form>
+    <a href="{{ url('/reports/export/csv') }}" class="btn">
+        Export CSV
+    </a>
 
     <div style="overflow-x:auto;">
         <table>
@@ -57,7 +60,6 @@
                     </td>
 
                     <td>
-                        {{-- simple risk badge --}}
                         @if($report->risk_score < 40)
                             <span style="color:green;">{{ $report->risk_score }} (Low)</span>
                         @elseif($report->risk_score < 70)

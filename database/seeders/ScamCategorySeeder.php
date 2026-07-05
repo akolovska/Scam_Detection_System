@@ -38,6 +38,10 @@ class ScamCategorySeeder extends Seeder
                 'name' => 'Phishing',
                 'description' => 'Attempts to steal credentials or personal information.',
             ],
+            [
+                'name' => 'Other',
+                'description' => 'Not a scam.',
+            ]
         ]);
     }
 }

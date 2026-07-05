@@ -2,6 +2,7 @@
 
 use App\Enums\ScamReportStatus;
 use App\Enums\SourceType;
+use App\Models\ScamCategory;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -21,6 +22,12 @@ return new class extends Migration
             $table->unsignedInteger('risk_score');
             $table->string('status')->default(ScamReportStatus::PENDING);
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('category_id')->constrained('scam_categories')->cascadeOnDelete();
+            $table->timestamp('reviewed_at')->nullable();
+            $table->foreignId('reviewed_by')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
             $table->timestamps();
         });
     }

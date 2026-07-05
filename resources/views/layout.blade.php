@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Scam Detection System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         body {
             margin: 0;
@@ -126,18 +126,14 @@
             <span class="welcome">
                 Welcome, {{ auth()->user()->name }}
             </span>
-
-            @if(auth()->user()->role === \App\Enums\UserRole::ADMIN)
-                <a href="{{ route('reports.create') }}" class="btn">
-                    Create
-                </a>
-            @endif
-            <a href="{{ route('profile.edit') }}">Profile</a>
+            <a href="{{ route('reports.index') }}">Reports</a>
             <a href="{{ route('statistics') }}">Statistics</a>
+            <a href="{{ route('reports.mine') }}">My Reports</a>
+            <a href="{{ route('profile.edit') }}">Profile</a>
 
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="btn btn-danger">
+                <button type="submit" class="btn btn-danger" style="margin-bottom: -15px">
                     Logout
                 </button>
             </form>

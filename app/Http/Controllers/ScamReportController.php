@@ -3,45 +3,28 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ScamReportStatus;
+use app\Enums\UserRole;
 use App\Http\Requests\StoreScamReportRequest;
+use App\Mail\HighRiskReportMail;
 use App\Models\ScamCategory;
 use App\Models\ScamReport;
 use App\Repositories\ScamReportRepository;
 use App\Services\ScamDetectionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Models\User;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ScamReportController extends Controller
 {
     public function __construct(
-        private ScamReportRepository $reportRepository,
         private ScamDetectionService $detectionService
     ) {}
 
     public function index(Request $request)
     {
-        $query = $this->reportRepository->query();
-
-        if ($request->filled('source_type')) {
-            $query->where('source_type', $request->source_type);
-        }
-
-        if ($request->filled('risk')) {
-
-            $query->when($request->risk === 'low', function ($q) {
-                $q->whereBetween('risk_score', [0, 39]);
-            });
-
-            $query->when($request->risk === 'medium', function ($q) {
-                $q->whereBetween('risk_score', [40, 69]);
-            });
-
-            $query->when($request->risk === 'high', function ($q) {
-                $q->whereBetween('risk_score', [70, 100]);
-            });
-        }
-
-        $reports = $query->with('user')->get();
+        $reports = $this->detectionService->findAll($request);
 
         return view('reports.index', compact('reports'));
     }
@@ -51,35 +34,16 @@ class ScamReportController extends Controller
         return view('reports.create');
     }
 
-
     public function store(StoreScamReportRequest $request)
     {
-        $data = $request->validated();
         try {
-            $result = $this->detectionService->calculateRisk(
-                $data['message_content']
+            $report = $this->detectionService->processAndCreateReport(
+                $request->validated()
             );
         } catch (\Exception $e) {
             return back()->withErrors([
-                'message_content' => 'AI service is currently unavailable. Try again later.'
+                'message_content' => 'AI service is currently unavailable.'
             ]);
-        }
-        $riskScore = $result['risk_score'] ?? 0;
-        $categoryName = $result['category'] ?? 'other';
-
-        $report = $this->reportRepository->save([
-            'title' => $data['title'],
-            'message_content' => $data['message_content'],
-            'source_type' => $data['source_type'],
-            'risk_score' => $riskScore,
-            'status' => ScamReportStatus::PENDING,
-            'user_id' => Auth::id(),
-        ]);
-
-        $category = ScamCategory::where('name', 'LIKE', "%$categoryName%")->first();
-
-        if ($category) {
-            $report->categories()->attach($category->id);
         }
 
         return redirect()
@@ -89,14 +53,14 @@ class ScamReportController extends Controller
 
     public function show(int $id)
     {
-        $report = $this->reportRepository->findById($id);
+        $report = $this->detectionService->findById($id);
+
         return view('reports.show', compact('report'));
     }
 
     public function destroy(int $id)
     {
-        $report = $this->reportRepository->findById($id);
-        $report->delete();
+        $this->detectionService->delete($id);
 
         return redirect()
             ->route('reports.index')
@@ -104,24 +68,54 @@ class ScamReportController extends Controller
     }
     public function dashboard()
     {
-        $total = ScamReport::count();
-
-        $low = ScamReport::whereBetween('risk_score', [0, 39])->count();
-
-        $medium = ScamReport::whereBetween('risk_score', [40, 69])->count();
-
-        $high = ScamReport::whereBetween('risk_score', [70, 100])->count();
-
-        $topCategory = ScamCategory::withCount('reports')
-            ->orderByDesc('reports_count')
-            ->first();
-
-        return view('statistics', compact(
-            'total',
-            'low',
-            'medium',
-            'high',
-            'topCategory'
-        ));
+        return view(
+            'statistics',
+            $this->detectionService->getDashboardStatistics()
+        );
     }
+    public function review(Request $request, ScamReport $report)
+    {
+        $request->validate([
+            'status' => 'required|in:approved,rejected,pending',
+        ]);
+
+        $this->detectionService->reviewReport(
+            $report,
+            $request->status
+        );
+
+        return back()->with('success', 'Report reviewed.');
+    }
+
+    public function exportCsv(): StreamedResponse
+    {
+        $reports = $this->detectionService->getExportData();
+
+        return response()->streamDownload(function () use ($reports) {
+            $handle = fopen('php://output', 'w');
+
+            fputcsv($handle, ['ID','Title','Risk','Category']);
+
+            foreach ($reports as $report) {
+                fputcsv($handle, [
+                    $report->id,
+                    $report->title,
+                    $report->risk_score,
+                    $report->category?->name ?? 'N/A',
+                ]);
+            }
+
+            fclose($handle);
+        }, 'reports.csv');
+    }
+    public function myReports(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    {
+        $reports = ScamReport::with('category')
+            ->where('user_id', auth()->id())
+            ->latest()
+            ->get();
+
+        return view('reports.mine', compact('reports'));
+    }
+
 }

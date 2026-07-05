@@ -14,14 +14,26 @@ class ScamReportRepository
 
     public function findAll(): Collection
     {
-        return ScamReport::with('user')->get();
+        return ScamReport::with(['user', 'category'])->get();
     }
-    public function findById(int $id): ScamReport
+    public function findById($id): ScamReport
     {
-        return ScamReport::findOrFail($id);
+        return ScamReport::with('category')->findOrFail($id);
     }
     public function query()
     {
         return ScamReport::query();
+    }
+    public function updateStatus(int $id, array $data): ScamReport
+    {
+        $report = ScamReport::findOrFail($id);
+
+        $report->update($data);
+
+        return $report;
+    }
+    public function delete(int $id): void
+    {
+        ScamReport::findOrFail($id)->delete();
     }
 }

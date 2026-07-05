@@ -20,24 +20,33 @@ class ScamReport extends Model
         'risk_score',
         'status',
         'user_id',
+        'category_id',
+        'reviewed_at',
+        'reviewed_by',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-    public function categories()
+    public function category()
     {
-        return $this->belongsToMany(
-            ScamCategory::class,
-            'scam_report_categories'
-        );
+        return $this->belongsTo(ScamCategory::class, 'category_id');
     }
     protected function casts(): array
     {
         return [
             'status' => ScamReportStatus::class,
-            'source_type' => SourceType::class
+            'source_type' => SourceType::class,
+            'reviewed_at' => 'datetime'
         ];
+    }
+    public function reports()
+    {
+        return $this->hasMany(ScamReport::class);
+    }
+    public function reviewer()
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
     }
 }

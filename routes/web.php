@@ -4,15 +4,14 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ScamReportController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
 
 Route::get('/dashboard', function () {
     return redirect()->route('reports.index');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware(['auth'])->group(function () {
+    Route::get('/', [ScamReportController::class, 'index'])
+        ->name('reports.index');
 
     Route::get('/reports', [ScamReportController::class, 'index'])
         ->name('reports.index');
@@ -24,11 +23,16 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/reports', [ScamReportController::class, 'store'])
         ->name('reports.store');
+    Route::patch('/reports/{report}/review', [ScamReportController::class, 'review'])
+        ->name('reports.review');
+    Route::get('/reports/export/csv', [ScamReportController::class, 'exportCsv']);
 
     Route::delete('/reports/{id}', [ScamReportController::class, 'destroy'])
         ->name('reports.destroy');
     Route::get('/statistics', [ScamReportController::class, 'dashboard'])
         ->name('statistics');
+    Route::get('/my-reports', [ScamReportController::class, 'myReports'])
+        ->name('reports.mine');
 });
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

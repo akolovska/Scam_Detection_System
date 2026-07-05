@@ -1,7 +1,7 @@
 @extends('layout')
 
 @section('content')
-    <h1 style="margin-bottom:25px;">📊 Scam Detection Statistics</h1>
+    <h1 style="padding-bottom:25px;">📊 Scam Detection Statistics</h1>
 
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-bottom:30px;">
 
@@ -47,31 +47,70 @@
         @endif
     </div>
 
-    <div style="background:white;padding:20px;border-radius:10px;margin-top:20px;">
-        <h2>Risk Distribution</h2>
-        <canvas id="riskChart"></canvas>
+    <div style="display:flex; gap:25px; flex-wrap:wrap;">
 
-        <h2 style="margin-top:40px;">Category Distribution</h2>
-        <canvas id="categoryChart"></canvas>
+        <div style="flex:1; min-width:350px; height:350px; background:white; padding:20px; border-radius:10px;">
+            <h2>Risk Distribution</h2>
+            <canvas id="riskChart" height="250"></canvas>
+        </div>
+
+        <div style="flex:1; min-width:350px; height:350px; background:white; padding:20px; border-radius:10px;">
+            <h2>Category Distribution</h2>
+            <canvas id="categoryChart" height="250"></canvas>
+        </div>
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
+
         new Chart(document.getElementById('riskChart'), {
             type: 'pie',
             data: {
                 labels: ['Low Risk', 'Medium Risk', 'High Risk'],
                 datasets: [{
-                    data: [{{ $low }}, {{ $medium }}, {{ $high }}],
+                    data: [
+                        {{ $low }},
+                        {{ $medium }},
+                        {{ $high }}
+                    ],
                     backgroundColor: [
                         '#22c55e',
                         '#f59e0b',
                         '#ef4444'
                     ]
                 }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
             }
         });
+
+        new Chart(document.getElementById('categoryChart'), {
+            type: 'bar',
+            data: {
+                labels: [
+                    @foreach($categories as $category)
+                        '{{ $category->name }}',
+                    @endforeach
+                ],
+                datasets: [{
+                    label: 'Reports',
+                    data: [
+                        @foreach($categories as $category)
+                            {{ $category->reports_count }},
+                        @endforeach
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
     </script>
 
 @endsection

@@ -13,9 +13,6 @@ class ScamCategory extends Model
     ];
     public function reports()
     {
-        return $this->belongsToMany(
-            ScamReport::class,
-            'scam_report_categories'
-        );
+        return $this->hasMany(ScamReport::class, 'category_id');
     }
 }
