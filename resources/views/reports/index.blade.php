@@ -32,10 +32,11 @@
         </select>
 
         <button class="btn" type="submit">Filter</button>
+        <a href="{{ url('/reports/export/csv') }}" class="btn" >
+            Export CSV
+        </a>
     </form>
-    <a href="{{ url('/reports/export/csv') }}" class="btn">
-        Export CSV
-    </a>
+
 
     <div style="overflow-x:auto;">
         <table>
