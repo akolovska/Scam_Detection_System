@@ -2,50 +2,93 @@
 
 @section('content')
 
-    <div style="max-width: 500px; margin: 40px auto;">
+    <div class="max-w-[500px] mx-auto mt-10">
 
-        <h1 style="margin-bottom: 10px;" class="text-lg font-semibold">Login</h1>
-
+        <h1 class="text-lg font-semibold mb-4">Login</h1>
 
         @if(session('status'))
-            <div class="alert">{{ session('status') }}</div>
+            <div class="alert mb-4">
+                {{ session('status') }}
+            </div>
         @endif
 
         <form method="POST" action="{{ route('login') }}">
-
             @csrf
 
-            <label>Email</label>
-            <input type="email" name="email" value="{{ old('email') }}" required>
-
-            @error('email')
-            <div style="color:red; font-size:13px;">{{ $message }}</div>
-            @enderror
-
-            <label>Password</label>
-            <input type="password" name="password" required>
-
-            @error('password')
-            <div style="color:red; font-size:13px;">{{ $message }}</div>
-            @enderror
-
-            <div style="margin-top: 10px;">
-                <label style="display:flex; align-items:center; gap:6px; font-size:13px;">
-                    <input type="checkbox" name="remember" style="width:14px; height:14px; margin:0;">
-                    <span>Remember me</span>
+            <div class="mb-4">
+                <label for="email" class="block mb-1 text-sm font-medium text-gray-900">
+                    Email
                 </label>
+
+                <input
+                    id="email"
+                    type="email"
+                    name="email"
+                    value="{{ old('email') }}"
+                    required
+                    autofocus
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md
+                           focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+
+                @error('email')
+                <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
+                @enderror
             </div>
 
-            <div style="margin-top: 20px; display:flex; gap:10px; justify-content:space-between; align-items:center;">
+            <div class="mb-4">
+                <label for="password" class="block mb-1 text-sm font-medium text-gray-900">
+                    Password
+                </label>
 
-                <div>
-                    <a href="{{ route('register') }}">Register</a>
+                <input
+                    id="password"
+                    type="password"
+                    name="password"
+                    required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md
+                           focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+
+                @error('password')
+                <div class="text-red-600 text-sm mt-1">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <label class="flex items-center gap-2 text-sm text-gray-700">
+                <input
+                    type="checkbox"
+                    name="remember"
+                    class="w-4 h-4 rounded border-gray-300"
+                >
+                <span>Remember me</span>
+            </label>
+
+            <div class="mt-5 flex justify-between items-center">
+
+                <div class="flex gap-3 text-sm">
+                    <a
+                        href="{{ route('register') }}"
+                        class="text-gray-600 hover:text-gray-900 underline"
+                    >
+                        Register
+                    </a>
+
                     @if (Route::has('password.request'))
-                        <a href="{{ route('password.request') }}"> Forgot password</a>
+                        <a
+                            href="{{ route('password.request') }}"
+                            class="text-gray-600 hover:text-gray-900 underline"
+                        >
+                            Forgot password
+                        </a>
                     @endif
                 </div>
 
-                <button type="submit" class="btn">
+                <button
+                    type="submit"
+                    class="px-4 py-2 bg-gray-900 text-white text-sm rounded-md
+                           hover:bg-gray-700 transition"
+                >
                     Login
                 </button>
 
